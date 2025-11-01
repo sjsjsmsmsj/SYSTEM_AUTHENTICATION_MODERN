@@ -1,0 +1,113 @@
+import bcrypte from 'bcrypt'
+import User from '../models/User.js'
+import jwt from 'jsonwebtoken'
+import crypto from 'crypto'
+import Session from '../models/Session.js'
+import cookieParser from 'cookie-parser'
+
+const ACCESS_TOKEN_TTL = '30m';
+const REFRESH_TOKEN_TTL = 14 * 24 * 60 * 60 * 1000;
+
+export const signUp = async (req, res) => {
+
+    try {
+        const { username, email, password, firstName, lastName } = req.body;
+        if (!username || !email || !password || !firstName || !lastName) {
+            return res.status(400).json({ message: "Not missing username, password, email, firstName, lastName" })
+        }
+        // check username is exist
+        const duplicate = await User.findOne({ username });
+        if (duplicate) {
+            return res.status(409).json({ message: "Duplicate username" })
+        }
+
+        // encode password
+        const hashedPwd = await bcrypte.hash(password, 10);
+
+        // create new user
+        await User.create({
+            username,
+            email,
+            hashedPassword: hashedPwd,
+            displayName: `${firstName} ${lastName}`
+        });
+
+        // return 
+        return res.sendStatus(204);
+
+    } catch (error) {
+        console.error("Error when call sign up", error);
+        res.status(500).json({ message: "System error" });
+    }
+}
+
+export const signIn = async (req, res) => {
+    try {
+        // lấy inputs
+        const { username, password } = req.body;
+        if (!username || !password) {
+            return res.status(400).json({ message: "Not missing username, password" }
+            )
+        }
+
+        // lấy hashedPassword trong db để so với password input 
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(401).json({ message: "Wrong username or password" })
+        }
+
+        // Kiểm tra password 
+        const isMatch = await bcrypte.compare(password, user.hashedPassword);
+
+        if (!isMatch) {
+            return res.status(401).json({ message: "Wrong username or password" })
+        }
+
+        // nếu khớp, tạo accessToken với JWT
+        const accessToken = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: ACCESS_TOKEN_TTL });
+
+        // tạo refresh token 
+        const refreshToken = crypto.randomBytes(64).toString('hex');
+
+        // tạo session mới để lưu refresh token 
+        await Session.create({
+            userId: user._id,
+            refreshToken,
+            expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL)
+        })
+
+        // trả refresh token về trong cookie
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none',
+            maxAge: REFRESH_TOKEN_TTL
+        })
+
+        // trả access token về trong res
+        return res.status(200).json({ message: `User ${user.username} logged in successfully`, accessToken: `Bearer ${accessToken}` })
+
+    } catch (error) {
+        console.error("Error when call sign in", error);
+        res.status(500).json({ message: "System error" });
+    }
+}
+
+export const signOut = async (req, res) => {
+    try {
+        // lấy refresh token từ cookie 
+        const token = req.cookies?.refreshToken;
+        if (token) {
+            // xóa refresh token trong Session
+            await Session.deleteOne({ refreshToken: token });
+
+            // xóa refresh token 
+            res.clearCookie('refreshToken')
+
+        }
+        return res.sendStatus(204);
+    } catch (error) {
+        console.error("Error when call sign out", error);
+        res.status(500).json({ message: "System error" });
+    }
+}

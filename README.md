@@ -1,3 +1,4 @@
+# Backend
 -  JWT (Json web token)
 + Header: chứa thông tin về loại token(Thuật toán được sử dụng)
 + Payload: Chứa thông tin người dùng, quyền hạn(authorization)
@@ -15,3 +16,9 @@ npm i jsonwebtoken bcrypt cookie-parser
 - Lấy access Token: 
 - node 
 = require('crypto').randomBytes(64).toString('hex')
+
+# FrontEnd
+- Tạo dự án: npm create vite@latest .
+- Các thư viện cần thiết: npm i react-router axios lucide-react tailwindcss @tailwindcss/vite tailwindcss-animate zustand zod react-hook-form @hookform/resolvers sonner
+- npm i -D @types/node
+- npx shadcn@latest init

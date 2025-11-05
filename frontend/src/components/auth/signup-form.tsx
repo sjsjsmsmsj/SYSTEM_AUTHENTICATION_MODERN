@@ -6,6 +6,12 @@ import { Label } from "../ui/label"
 import { z } from 'zod' // use for validate data
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useAuthStore } from "@/stores/useAuthStore"
+import { useNavigate } from "react-router"
+import { useEffect } from "react"
+import { Navigate } from "react-router"
+
+
 
 
 // use for validate data 
@@ -27,9 +33,12 @@ export function SignupForm({
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema)
   });
-
+  const { signUp } = useAuthStore();
+  const navigate = useNavigate();
   const onSubmit = async (data: SingUpFormValues) => {
-    console.log(data);
+    const { firstname, lastname, username, email, password } = data;
+    await signUp(firstname, lastname, username, email, password)
+    navigate("/signin")
   }
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>

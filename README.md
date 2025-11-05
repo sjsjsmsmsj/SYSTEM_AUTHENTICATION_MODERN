@@ -22,3 +22,8 @@ npm i jsonwebtoken bcrypt cookie-parser
 - Các thư viện cần thiết: npm i react-router axios lucide-react tailwindcss @tailwindcss/vite tailwindcss-animate zustand zod react-hook-form @hookform/resolvers sonner
 - npm i -D @types/node
 - npx shadcn@latest init
+
+- Thư mục store dùng để lưu trữ các state 
+- Thư mục services dùng để gọi api 
+- libs chứa axios chứa định nghĩa api cố định 
+- Còn phần dynamic phía sau thì lưu ở Services

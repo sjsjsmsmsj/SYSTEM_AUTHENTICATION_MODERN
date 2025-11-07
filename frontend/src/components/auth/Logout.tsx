@@ -1,9 +1,6 @@
-import React from 'react'
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useNavigate } from 'react-router'
-
-
 
 
 const Logout = () => {

@@ -27,3 +27,6 @@ npm i jsonwebtoken bcrypt cookie-parser
 - Thư mục services dùng để gọi api 
 - libs chứa axios chứa định nghĩa api cố định 
 - Còn phần dynamic phía sau thì lưu ở Services
+
+- Chỉ những ai đăng nhập mới được phép vào 
+- => sử dụng protected root

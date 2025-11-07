@@ -32,5 +32,14 @@ export const authService = {
         } catch (error) {
             console.log(error);
         }
+    },
+    fetchMe: async () => {
+        const res = await api.get('/users/me', { withCredentials: true });
+        return res.data;
+    },
+    refresh: async () => {
+        const res = await api.post('/auth/refresh', { withCredentials: true });
+        return res.data;
     }
+
 }

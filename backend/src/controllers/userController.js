@@ -1,5 +1,5 @@
 export const authMe = (req, res) => {
-    return res.sendStatus(200).json({ message: "OK" })
+    return res.status(200).json(req.user);
 };
 
 export default authMe;
